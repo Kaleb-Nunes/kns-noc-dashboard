@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  kns-noc:
+    build: .
+    container_name: kns-noc-app
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - GRAFANA_TARGET=http://grafana:3000
+    depends_on:
+      - grafana
+    networks:
+      - kns-net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kns-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - kns-net
+    restart: unless-stopped
+
+networks:
+  kns-net:
+    driver: bridge
+
+volumes:
+  grafana-storage:

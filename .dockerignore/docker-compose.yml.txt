@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Seu App NOC (Node.js)
+  kns-noc:
+    build: .
+    container_name: kns-noc-app
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      # Define onde o Grafana está (nome do serviço abaixo)
+      - GRAFANA_TARGET=http://grafana:3000
+    depends_on:
+      - grafana
+    networks:
+      - kns-net
+    restart: unless-stopped
+
+  # Grafana Oficial
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kns-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persistência: Salva seus dashboards mesmo se o container reiniciar
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - kns-net
+    restart: unless-stopped
+
+# Definição da Rede Isolada
+networks:
+  kns-net:
+    driver: bridge
+
+# Definição do Volume de Dados
+volumes:
+  grafana-storage:

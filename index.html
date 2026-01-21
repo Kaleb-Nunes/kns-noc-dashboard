@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KNS G-NOC-SOC | Enterprise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* --- VARIÁVEIS DE TEMA --- */
+:root {
+    --bg-color: #050a14;
+    --glass-bg: rgba(20, 30, 50, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --neon-blue: #3b82f6;
+    --neon-green: #10b981;
+    --neon-red: #ef4444;
+    --neon-yellow: #f59e0b;
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --log-bg: rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] {
+    --bg-color: #f1f5f9;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --neon-blue: #0284c7;
+    --neon-green: #16a34a;
+    --neon-red: #dc2626;
+    --neon-yellow: #d97706;
+    --card-shadow: 0 8px 24px rgba(148, 163, 184, 0.4);
+    --log-bg: rgba(255,255,255,0.8);
+}
+
+* { box-sizing: border-box; transition: all 0.3s ease; }
+
+body {
+    margin: 0; padding: 20px;
+    background-color: var(--bg-color);
+    background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+    background-size: 40px 40px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden; 
+}
+
+/* --- GRID E LAYOUT --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 20px;
+    height: calc(100vh - 40px);
+}
+
+.header {
+    grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; background: var(--bg-color);
+}
+.brand h1 { font-family: 'JetBrains Mono', monospace; font-size: 24px; margin: 0; letter-spacing: -1px; }
+.brand span { color: var(--neon-blue); }
+
+/* --- CONTROLES E BOTÕES --- */
+.controls { display: flex; align-items: center; gap: 20px; }
+.lang-flags { display: flex; gap: 10px; border-right: 1px solid var(--glass-border); padding-right: 20px; }
+.flag-btn { width: 28px; height: 20px; cursor: pointer; border-radius: 3px; opacity: 0.5; }
+.flag-btn.active, .flag-btn:hover { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px var(--neon-blue); }
+
+.btn-icon {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main);
+    width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+
+/* --- GLASS CARDS --- */
+.glass-card {
+    background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 20px; box-shadow: var(--card-shadow);
+    display: flex; flex-direction: column;
+}
+
+/* --- SIDEBAR E ACTION CENTER --- */
+.sidebar { display: flex; flex-direction: column; gap: 15px; }
+.metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; display: flex; justify-content: space-between;}
+.metric-value { font-family: 'JetBrains Mono'; font-size: 28px; font-weight: 700; color: var(--text-main); margin: 5px 0; }
+.metric-bar-bg { height: 6px; background: rgba(128,128,128,0.2); border-radius: 3px; overflow: hidden; margin-top:5px; }
+.metric-fill { height: 100%; background: var(--neon-blue); width: 0%; transition: width 1s ease; }
+
+.global-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.region-box { background: var(--log-bg); padding: 8px; border-radius: 6px; border-left: 3px solid transparent; }
+.region-val { font-family: 'JetBrains Mono'; font-size: 16px; font-weight: bold; }
+.status-ok { border-color: var(--neon-green); color: var(--neon-green); }
+.status-bad { border-color: var(--neon-red); color: var(--neon-red); animation: blink 1s infinite; }
+
+/* ACTION BUTTONS (SENIOR FEATURE) */
+.action-area { margin-top: 10px; display: none; /* Escondido por padrão */ }
+.btn-action {
+    width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer;
+    font-weight: bold; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    text-transform: uppercase; color: #fff; margin-bottom: 8px;
+}
+.btn-crit { background: var(--neon-red); box-shadow: 0 0 15px rgba(239,68,68,0.4); animation: pulseBtn 1.5s infinite; }
+.btn-warn { background: var(--neon-yellow); color: #000; }
+
+/* --- IFRAMES E LOGS --- */
+.main-stage { grid-column: 2 / 4; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; }
+iframe { width: 100%; height: 100%; border: 0; border-radius: 8px; }
+
+.logs-panel { grid-column: 1 / -1; height: 140px; overflow: hidden; }
+.logs-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.log-terminal { font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-y: auto; height: 100%; background: var(--log-bg); padding: 10px; border-radius: 6px; }
+.log-row { padding: 4px 0; border-bottom: 1px solid var(--glass-border); display: flex; gap: 15px; }
+.lvl-crit { color: var(--neon-red); font-weight:bold; }
+.lvl-warn { color: var(--neon-yellow); font-weight:bold; }
+.lvl-info { color: var(--neon-blue); font-weight:bold; }
+.lvl-sys  { color: var(--neon-green); font-weight:bold; }
+
+@keyframes blink { 50% { opacity: 0.5; } }
+@keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+</style>
+</head>
+
+<body>
+
+<div class="dashboard-grid">
+    <div class="header">
+        <div class="brand"><h1>KNS<span>_G-NOC-SOC</span></h1></div>
+        <div class="controls">
+            <div class="lang-flags">
+                <img src="https://flagcdn.com/w40/br.png" class="flag-btn active" id="btn-pt" onclick="changeLang('pt')">
+                <img src="https://flagcdn.com/w40/us.png" class="flag-btn" id="btn-en" onclick="changeLang('en')">
+            </div>
+            <button class="btn-icon" onclick="simulateAttack()" title="Simular Ataque (Dev Mode)"><i class="fa-solid fa-bug"></i></button>
+            <button class="btn-icon" onclick="toggleTheme()" title="Tema"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <div style="font-size:12px; color:var(--neon-green); font-weight:bold">● <span data-lang="sys_status">ONLINE</span></div>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="glass-card">
+            <span class="metric-label"><span data-lang="lbl_latency">Latência Global</span> <i class="fa-solid fa-globe"></i></span>
+            <div class="global-grid">
+                <div class="region-box" id="reg-latam"><div class="region-name">SPO</div><div class="region-val">--</div></div>
+                <div class="region-box" id="reg-us"><div class="region-name">USA</div><div class="region-val">--</div></div>
+                <div class="region-box" id="reg-eu"><div class="region-name">UK</div><div class="region-val">--</div></div>
+            </div>
+            
+            <div id="action-routing" class="action-area">
+                <div style="margin: 10px 0; border-top: 1px solid var(--glass-border)"></div>
+                <button class="btn-action btn-warn" onclick="sendAction('REROUTE_TRAFFIC')">
+                    <i class="fa-solid fa-route"></i> <span data-lang="btn_reroute">Otimizar Rotas BGP</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div style="margin-bottom:15px">
+                <div style="display:flex; justify-content:space-between">
+                    <span class="metric-label" data-lang="lbl_cpu">CPU</span>
+                    <span id="cpu-txt" style="font-size:12px; font-weight:bold">--%</span>
+                </div>
+                <div class="metric-bar-bg"><div id="cpu-bar" class="metric-fill"></div></div>
+            </div>
+
+            <div id="security-panel">
+                <span class="metric-label" data-lang="lbl_security">Status Segurança</span>
+                <div class="metric-value" id="sec-status" style="color:var(--neon-green)">SECURE</div>
+            </div>
+
+            <div id="action-mitigate" class="action-area">
+                 <button class="btn-action btn-crit" onclick="sendAction('MITIGATE_DDOS')">
+                    <i class="fa-solid fa-shield-halved"></i> <span data-lang="btn_mitigate">ATIVAR CONTRAMEDIDAS</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <span class="metric-label" data-lang="lbl_sessions">Tráfego ao Vivo</span>
+            <div class="metric-value" id="rps-val">--</div>
+            <small style="color:var(--text-muted); font-size:10px;">Req/Seg (Layer 7)</small>
+        </div>
+    </aside>
+
+    <main class="main-stage">
+        <div class="glass-card" style="padding:0; overflow:hidden"><iframe id="p4"></iframe></div>
+        <div class="glass-card" style="padding:0; overflow:hidden"><iframe id="p8"></iframe></div>
+        <div class="glass-card" style="padding:0; overflow:hidden"><iframe id="p5"></iframe></div>
+        <div class="glass-card" style="padding:0; overflow:hidden"><iframe id="p7"></iframe></div>
+    </main>
+
+    <footer class="glass-card logs-panel">
+        <div class="logs-header"><strong data-lang="log_title">Audit Log</strong><span>TLS v1.3</span></div>
+        <div class="log-terminal" id="log-terminal"></div>
+    </footer>
+</div>
+
+<script>
+    const HOST = window.location.hostname;
+    const GRAFANA_BASE = `http://${HOST}:3000`;
+    const DASH_UID = "adwld8l"; const DASH_SLUG = "kns-noc-soc-copy"; const ORG_ID = 1;
+    const PANELS = { p4: "panel-4", p8: "panel-8", p5: "panel-5", p7: "panel-7" };
+
+    // --- DICIONÁRIO ---
+    const translations = {
+        pt: {
+            sys_status: "ONLINE", lbl_latency: "Latência Global", lbl_cpu: "Carga CPU", 
+            lbl_security: "Status Segurança", lbl_sessions: "Tráfego ao Vivo",
+            btn_reroute: "Otimizar Rotas BGP", btn_mitigate: "ATIVAR CONTRAMEDIDAS",
+            log_title: "Fluxo de Auditoria", sec_safe: "SEGURO", sec_crit: "SOB ATAQUE"
+        },
+        en: {
+            sys_status: "ONLINE", lbl_latency: "Global Latency", lbl_cpu: "CPU Load", 
+            lbl_security: "Security Status", lbl_sessions: "Live Traffic",
+            btn_reroute: "Optimize BGP Routes", btn_mitigate: "ACTIVATE COUNTERMEASURES",
+            log_title: "Audit Stream", sec_safe: "SECURE", sec_crit: "UNDER ATTACK"
+        }
+    };
+
+    let currentLang = localStorage.getItem('kns_lang') || 'pt';
+    let currentTheme = localStorage.getItem('kns_theme') || 'dark';
+
+    // --- FUNÇÕES DE AÇÃO (EXPERT LEVEL) ---
+    async function sendAction(actionType) {
+        addLog("SYS", `Iniciando protocolo: ${actionType}...`);
+        try {
+            const res = await fetch('/api/actions', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: actionType })
+            });
+            const data = await res.json();
+            if(data.success) {
+                addLog("SYS", `SUCESSO: ${data.msg}`);
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    async function simulateAttack() {
+        sendAction('SIMULATE_ATTACK'); // Dispara o caos para testar os botões
+    }
+
+    // --- LOOP DE DADOS ---
+    async function updateData() {
+        try {
+            const res = await fetch('/api/enterprise-status');
+            const data = await res.json();
+            const dict = translations[currentLang];
+
+            // 1. Atualiza Regiões
+            updateRegion('reg-latam', data.regions.latam);
+            updateRegion('reg-us', data.regions.useast);
+            updateRegion('reg-eu', data.regions.euwest);
+
+            // 2. Lógica de "Botão de Otimização"
+            // Se tiver lag, mostra o botão para o operador clicar
+            const hasLag = data.business.latency_issue;
+            document.getElementById('action-routing').style.display = hasLag ? 'block' : 'none';
+            if(hasLag && Math.random() > 0.8) addLog("WARN", "Latência instável detectada. Ação manual requerida.");
+
+            // 3. Lógica de Segurança (DDoS)
+            const isAttack = data.business.is_under_attack;
+            const secEl = document.getElementById('sec-status');
+            
+            if(isAttack) {
+                secEl.innerText = dict.sec_crit;
+                secEl.style.color = "var(--neon-red)";
+                secEl.classList.add("blink");
+                document.getElementById('action-mitigate').style.display = 'block'; // Mostra botão vermelho gigante
+                addLog("CRIT", "DDoS Volumétrico detectado! Ative mitigação.");
+            } else {
+                secEl.innerText = dict.sec_safe;
+                secEl.style.color = "var(--neon-green)";
+                secEl.classList.remove("blink");
+                document.getElementById('action-mitigate').style.display = 'none';
+            }
+
+            // 4. Barras
+            document.getElementById('cpu-bar').style.width = data.system.cpu + "%";
+            document.getElementById('cpu-txt').innerText = data.system.cpu + "%";
+            document.getElementById('rps-val').innerText = data.business.rps.toLocaleString();
+
+        } catch(e) {}
+    }
+
+    function updateRegion(id, data) {
+        const el = document.getElementById(id);
+        el.querySelector('.region-val').innerText = data.ms + " ms";
+        if(data.status !== 'ONLINE') {
+            el.querySelector('.region-val').classList.add('status-bad');
+            el.querySelector('.region-val').classList.remove('status-ok');
+        } else {
+            el.querySelector('.region-val').classList.add('status-ok');
+            el.querySelector('.region-val').classList.remove('status-bad');
+        }
+    }
+
+    // --- SETUP UI ---
+    function changeLang(lang) {
+        currentLang = lang; localStorage.setItem('kns_lang', lang);
+        document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${lang}`).classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
+            if(translations[lang][key]) el.innerText = translations[lang][key];
+        });
+    }
+
+    function toggleTheme() {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute("data-theme", currentTheme);
+        localStorage.setItem('kns_theme', currentTheme);
+        Object.keys(PANELS).forEach(id => {
+            document.getElementById(id).src = `${GRAFANA_BASE}/d-solo/${DASH_UID}/${DASH_SLUG}?orgId=${ORG_ID}&from=now-1h&to=now&panelId=${PANELS[id]}&theme=${currentTheme}`;
+        });
+    }
+
+    function addLog(lvl, msg) {
+        const t = document.getElementById('log-terminal');
+        const div = document.createElement('div');
+        div.className = 'log-row';
+        let cl = 'lvl-info';
+        if(lvl==='CRIT') cl='lvl-crit'; if(lvl==='WARN') cl='lvl-warn'; if(lvl==='SYS') cl='lvl-sys';
+        div.innerHTML = `<span style="opacity:0.6">${new Date().toLocaleTimeString()}</span> <span class="${cl}">[${lvl}]</span> ${msg}`;
+        t.prepend(div);
+        if(t.children.length > 50) t.removeChild(t.lastChild);
+    }
+
+    // Init
+    changeLang(currentLang);
+    toggleTheme(); // Já carrega o Grafana
+    setInterval(updateData, 2000); // Atualiza rápido
+    addLog("SYS", "KNS Enterprise Dashboard Ready.");
+
+</script>
+</body>
+</html>
