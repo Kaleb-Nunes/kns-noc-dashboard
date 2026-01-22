@@ -1,0 +1,104 @@
+﻿<style>
+    .kns-card-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+    }
+    .kns-card {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-left: 4px solid #00ff41; /* Hacker Green */
+        border-radius: 8px;
+        width: 100%;
+        max-width: 600px;
+        padding: 25px;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .kns-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+        border-color: #00ff41;
+    }
+    .kns-badge {
+        background: rgba(0, 255, 65, 0.1);
+        color: #00ff41;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+    .kns-title {
+        color: #fff;
+        margin: 0 0 10px 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .kns-desc {
+        color: #a0a0a0;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    .kns-tech-stack {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+    .kns-tech {
+        background: #1a1a1a;
+        color: #ccc;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        border: 1px solid #333;
+    }
+    .kns-btn {
+        background: transparent;
+        color: #00ff41;
+        text-decoration: none;
+        font-weight: bold;
+        border: 1px solid #00ff41;
+        padding: 10px 20px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    .kns-btn:hover {
+        background: #00ff41;
+        color: #000;
+        box-shadow: 0 0 15px #00ff41;
+    }
+</style>
+
+<div class="kns-card-container">
+    <div class="kns-card">
+        <div class="kns-badge">System Status: Production</div>
+        <h3 class="kns-title"> KNS Command Center</h3>
+        <p class="kns-desc">
+            Plataforma Full Stack de Observabilidade Híbrida. Monitoramento unificado de Docker (Linux) e Infraestrutura Física (Windows) com capacidade de Defesa Ativa via Automação Python.
+        </p>
+        
+        <div class="kns-tech-stack">
+            <span class="kns-tech">Docker</span>
+            <span class="kns-tech">Python</span>
+            <span class="kns-tech">Zabbix</span>
+            <span class="kns-tech">Grafana</span>
+            <span class="kns-tech">PowerShell</span>
+        </div>
+
+        <a href="https://github.com/Kaleb-Nunes/KNS-Command-Center" target="_blank" class="kns-btn">
+            VER PROJETO NO GITHUB &rarr;
+        </a>
+    </div>
+</div>
