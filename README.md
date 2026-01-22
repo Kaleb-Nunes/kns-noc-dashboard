@@ -3,227 +3,313 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KNS NOC / SOC</title>
+<title>KNS G-NOC-SOC | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-:root{
-  --bg:#f4f7fb; --text:#0f172a; --muted:#334155;
-  --card:#ffffff; --border:rgba(2,6,23,.08); --shadow:0 10px 20px rgba(2,6,23,.08);
-  --primary:#2563eb;
-  --btn-bg:#0f172a; --btn-text:#ffffff;
-  --danger:#dc2626;
-  --gap:18px;
+/* --- VARIÁVEIS DE TEMA --- */
+:root {
+    --bg-color: #050a14;
+    --glass-bg: rgba(20, 30, 50, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --neon-blue: #3b82f6;
+    --neon-green: #10b981;
+    --neon-red: #ef4444;
+    --neon-yellow: #f59e0b;
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --log-bg: rgba(0,0,0,0.3);
 }
-[data-theme="dark"]{
-  --bg:#0b1220; --text:#e5e7eb; --muted:#cbd5e1;
-  --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.10); --shadow:0 10px 20px rgba(0,0,0,.35);
-  --primary:#60a5fa;
-  --btn-bg:#e5e7eb; --btn-text:#0b1220;
-  --danger:#f87171;
-}
-*{box-sizing:border-box}
-body{margin:0;padding:20px;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
-.header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-h1{margin:0;font-size:22px;color:var(--primary)}
-.btn{
-  border:1px solid var(--border);
-  background:var(--btn-bg);color:var(--btn-text);
-  padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:800
-}
-.grid{display:grid;grid-template-columns:2fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
-.card{
-  background:var(--card);border:1px solid var(--border);border-radius:14px;
-  padding:16px;box-shadow:var(--shadow)
-}
-h2{margin:0 0 12px;color:var(--primary);font-size:16px}
-.kv p{margin:8px 0}
-.kv span{font-weight:900}
-.bad{color:var(--danger);font-weight:900}
-.ok{color:inherit;font-weight:900}
 
-.embeds{display:grid;grid-template-columns:repeat(2,minmax(320px,1fr));gap:var(--gap)}
-.embed-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-.embed-title small{color:var(--muted)}
-.iframe-wrap{border-radius:12px;overflow:hidden;border:1px solid var(--border);background:rgba(0,0,0,.08)}
-iframe{width:100%;height:240px;border:0;display:block}
-
-@media (max-width:980px){
-  .grid{grid-template-columns:1fr}
-  .embeds{grid-template-columns:1fr}
+[data-theme="light"] {
+    --bg-color: #f1f5f9;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --neon-blue: #0284c7;
+    --neon-green: #16a34a;
+    --neon-red: #dc2626;
+    --neon-yellow: #d97706;
+    --card-shadow: 0 8px 24px rgba(148, 163, 184, 0.4);
+    --log-bg: rgba(255,255,255,0.8);
 }
+
+* { box-sizing: border-box; transition: all 0.3s ease; }
+
+body {
+    margin: 0; padding: 15px;
+    background-color: var(--bg-color);
+    background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+    background-size: 40px 40px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden; 
+}
+
+/* --- GRID PRINCIPAL --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 15px;
+    height: calc(100vh - 30px);
+}
+
+.header {
+    grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; background: var(--bg-color);
+}
+.brand h1 { font-family: 'JetBrains Mono', monospace; font-size: 22px; margin: 0; letter-spacing: -1px; }
+.brand span { color: var(--neon-blue); }
+
+/* --- CONTROLES --- */
+.controls { display: flex; align-items: center; gap: 15px; }
+.lang-flags { display: flex; gap: 8px; border-right: 1px solid var(--glass-border); padding-right: 15px; }
+.flag-btn { width: 24px; height: 16px; cursor: pointer; border-radius: 2px; opacity: 0.5; }
+.flag-btn.active, .flag-btn:hover { opacity: 1; transform: scale(1.1); }
+
+.btn-icon {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main);
+    width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+
+/* --- GLASS CARDS --- */
+.glass-card {
+    background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+    border-radius: 10px; padding: 15px; box-shadow: var(--card-shadow);
+    display: flex; flex-direction: column;
+}
+
+/* --- SIDEBAR --- */
+.sidebar { display: flex; flex-direction: column; gap: 10px; grid-row: 2 / 3; overflow-y: auto; }
+.metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; display: flex; justify-content: space-between;}
+.metric-value { font-family: 'JetBrains Mono'; font-size: 24px; font-weight: 700; color: var(--text-main); margin: 2px 0; }
+.metric-bar-bg { height: 4px; background: rgba(128,128,128,0.2); border-radius: 2px; overflow: hidden; margin-top:5px; }
+.metric-fill { height: 100%; background: var(--neon-blue); width: 0%; transition: width 1s ease; }
+
+.global-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 8px; }
+.region-box { background: var(--log-bg); padding: 5px; border-radius: 4px; border-left: 2px solid transparent; font-size: 12px; }
+.region-val { font-family: 'JetBrains Mono'; font-weight: bold; }
+.status-ok { border-color: var(--neon-green); color: var(--neon-green); }
+.status-bad { border-color: var(--neon-red); color: var(--neon-red); animation: blink 1s infinite; }
+
+.action-area { margin-top: 8px; display: none; }
+.btn-action {
+    width: 100%; padding: 8px; border: none; border-radius: 4px; cursor: pointer;
+    font-weight: bold; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px;
+    text-transform: uppercase; color: #fff; margin-bottom: 5px;
+}
+.btn-crit { background: var(--neon-red); animation: pulseBtn 1.5s infinite; }
+.btn-warn { background: var(--neon-yellow); color: #000; }
+
+/* --- MAIN STAGE (GRID DE 5 GRÁFICOS) --- */
+.main-stage { 
+    grid-column: 2 / 3; 
+    grid-row: 2 / 3;
+    display: grid;
+    /* Divide em 6 colunas virtuais para flexibilidade */
+    grid-template-columns: repeat(6, 1fr);
+    /* 2 linhas de altura: Topo 55%, Baixo 45% */
+    grid-template-rows: 55% 45%; 
+    gap: 10px;
+    overflow: hidden;
+}
+
+/* Container do Iframe */
+.grafana-box {
+    padding: 0 !important;
+    position: relative;
+    overflow: hidden;
+}
+iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* Topo: Gráficos ocupam metade cada (3 colunas de 6) */
+.box-large { grid-column: span 3; }
+
+/* Baixo: Gráficos ocupam um terço cada (2 colunas de 6) */
+.box-small { grid-column: span 2; }
+
+
+/* --- LOGS --- */
+.logs-panel { grid-column: 1 / -1; height: 100px; overflow: hidden; grid-row: 3 / 4; }
+.logs-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.log-terminal { font-family: 'JetBrains Mono', monospace; font-size: 11px; overflow-y: auto; height: 100%; background: var(--log-bg); padding: 8px; border-radius: 4px; }
+.log-row { padding: 2px 0; border-bottom: 1px solid var(--glass-border); display: flex; gap: 10px; }
+.lvl-crit { color: var(--neon-red); font-weight:bold; }
+.lvl-warn { color: var(--neon-yellow); font-weight:bold; }
+.lvl-info { color: var(--neon-blue); font-weight:bold; }
+.lvl-sys  { color: var(--neon-green); font-weight:bold; }
+
+@keyframes blink { 50% { opacity: 0.5; } }
+@keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 </style>
 </head>
 
 <body>
-  <div class="header">
-    <h1>KNS NOC / SOC</h1>
-    <button class="btn" id="toggleTheme" type="button">Alternar tema</button>
-  </div>
 
-  <div class="grid">
-    <div class="card">
-      <h2>Status Geral</h2>
-      <div class="kv">
-        <p>CPU: <span id="cpu">--</span>%</p>
-        <p>Memória: <span id="mem">--</span>%</p>
-        <p>Latência: <span id="lat">--</span> ms</p>
-        <p>Status: <span id="status" class="ok">--</span></p>
-      </div>
+<div class="dashboard-grid">
+    <div class="header">
+        <div class="brand"><h1>KNS<span>_COMMAND_CENTER</span></h1></div>
+        <div class="controls">
+            <div class="lang-flags">
+                <img src="https://flagcdn.com/w40/br.png" class="flag-btn active" id="btn-pt" onclick="changeLang('pt')">
+                <img src="https://flagcdn.com/w40/us.png" class="flag-btn" id="btn-en" onclick="changeLang('en')">
+            </div>
+            <button class="btn-icon" onclick="simulateAttack()" title="Simular Ataque"><i class="fa-solid fa-bug"></i></button>
+            <button class="btn-icon" onclick="toggleTheme()" title="Tema"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <div style="font-size:11px; color:var(--neon-green); font-weight:bold">● <span data-lang="sys_status">ONLINE</span></div>
+        </div>
     </div>
 
-    <div class="card">
-      <h2>SOC Security</h2>
-      <div class="kv">
-        <p>Ataques: <span id="ataques">--</span></p>
-        <p>Estado: <span id="seguranca">--</span></p>
-      </div>
-    </div>
-  </div>
+    <aside class="sidebar">
+        <div class="glass-card">
+            <span class="metric-label"><span data-lang="lbl_latency">Latência Global</span> <i class="fa-solid fa-globe"></i></span>
+            <div class="global-grid">
+                <div class="region-box" id="reg-latam"><div class="region-val">--</div></div>
+                <div class="region-box" id="reg-us"><div class="region-val">--</div></div>
+                <div class="region-box" id="reg-eu"><div class="region-val">--</div></div>
+            </div>
+            <div id="action-routing" class="action-area">
+                <button class="btn-action btn-warn" onclick="sendAction('REROUTE_TRAFFIC')">
+                    <i class="fa-solid fa-route"></i> BGP Optimize
+                </button>
+            </div>
+        </div>
 
-  <div class="embeds">
-    <div class="card">
-      <div class="embed-title"><h2>CPU (Painel 4)</h2><small>Grafana</small></div>
-      <div class="iframe-wrap"><iframe id="p4" loading="lazy"></iframe></div>
-    </div>
+        <div class="glass-card">
+            <span class="metric-label" data-lang="lbl_cpu">Node.js CPU</span>
+            <div class="metric-value" id="cpu-txt">--%</div>
+            <div class="metric-bar-bg"><div id="cpu-bar" class="metric-fill"></div></div>
+        </div>
 
-    <div class="card">
-      <div class="embed-title"><h2>Memória (Painel 8)</h2><small>Grafana</small></div>
-      <div class="iframe-wrap"><iframe id="p8" loading="lazy"></iframe></div>
-    </div>
+        <div class="glass-card">
+             <span class="metric-label" data-lang="lbl_security">Status Segurança</span>
+             <div class="metric-value" id="sec-status" style="color:var(--neon-green); font-size:18px;">SECURE</div>
+             <div id="action-mitigate" class="action-area">
+                 <button class="btn-action btn-crit" onclick="sendAction('MITIGATE_DDOS')">
+                    <i class="fa-solid fa-shield-halved"></i> MITIGATE
+                </button>
+            </div>
+        </div>
 
-    <div class="card">
-      <div class="embed-title"><h2>Latência (Painel 5)</h2><small>Grafana</small></div>
-      <div class="iframe-wrap"><iframe id="p5" loading="lazy"></iframe></div>
-    </div>
+        <div class="glass-card">
+            <span class="metric-label" data-lang="lbl_sessions">Tráfego (L7)</span>
+            <div class="metric-value" id="rps-val">--</div>
+            <small style="color:var(--text-muted); font-size:9px;">Req/Sec</small>
+        </div>
+    </aside>
 
-    <div class="card">
-      <div class="embed-title"><h2>Disponibilidade (Painel 2)</h2><small>Grafana</small></div>
-      <div class="iframe-wrap"><iframe id="p2" loading="lazy"></iframe></div>
-    </div>
+    <main class="main-stage">
+        
+        <div class="glass-card grafana-box box-large">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=4&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
 
-    <div class="card">
-      <div class="embed-title"><h2>Perdas de Pacotes (Painel 7)</h2><small>Grafana</small></div>
-      <div class="iframe-wrap"><iframe id="p7" loading="lazy"></iframe></div>
-    </div>
-  </div>
+        <div class="glass-card grafana-box box-large">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=2&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+        <div class="glass-card grafana-box box-small">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=3&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+        <div class="glass-card grafana-box box-small">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=5&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+        <div class="glass-card grafana-box box-small">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=6&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+    </main>
+
+    <footer class="glass-card logs-panel">
+        <div class="logs-header"><strong data-lang="log_title">Audit Log</strong><span>Multi-Panel View</span></div>
+        <div class="log-terminal" id="log-terminal"></div>
+    </footer>
+</div>
 
 <script>
-  // ====== AJUSTES IMPORTANTES (localhost / outro dispositivo / porta do Grafana) ======
-  // - Se você abrir esta página por outro dispositivo (celular), "localhost" viraria o celular.
-  //   Por isso usamos window.location.hostname (o host real que você acessou).
-  // - Grafana precisa estar acessível em http://SEU_HOST:3000
-  //   Se estiver em outra porta, troque GRAFANA_PORT aqui.
-  const GRAFANA_PORT = 3000;
+    // --- SCRIPT PADRÃO ---
+    const translations = {
+        pt: { sys_status: "ONLINE", lbl_latency: "Latência Global", lbl_cpu: "Carga Node", lbl_security: "Status Segurança", lbl_sessions: "Tráfego", btn_reroute: "Otimizar BGP", btn_mitigate: "MITIGAR ATAQUE", log_title: "Fluxo de Auditoria", sec_safe: "SEGURO", sec_crit: "ATAQUE DETECTADO" },
+        en: { sys_status: "ONLINE", lbl_latency: "Global Latency", lbl_cpu: "Node Load", lbl_security: "Security Status", lbl_sessions: "Traffic", btn_reroute: "Optimize BGP", btn_mitigate: "MITIGATE ATTACK", log_title: "Audit Stream", sec_safe: "SECURE", sec_crit: "ATTACK DETECTED" }
+    };
+    let currentLang = localStorage.getItem('kns_lang') || 'pt';
+    let currentTheme = localStorage.getItem('kns_theme') || 'dark';
 
-  const HOST = window.location.hostname;                 // IP/host real usado no navegador
-  const GRAFANA_BASE = `http://${HOST}:${GRAFANA_PORT}`; // evita "localhost" errado
-  const METRICS_ENDPOINT = `${location.origin}/kns-metrics`; // mesma origem da página (porta 5055)
-
-  // ====== DASH / PAINÉIS ======
-  const DASH_UID  = "adwld8l";
-  const DASH_SLUG = "kns-noc-soc-copy";
-  const ORG_ID    = 1;
-
-  const PANELS = {
-    p4: "panel-4",
-    p8: "panel-8",
-    p5: "panel-5",
-    p2: "panel-2",
-    p7: "panel-7"
-  };
-
-  // ====== TEMA (1 botão) ======
-  const root = document.documentElement;
-
-  function getTheme(){
-    return root.getAttribute("data-theme") || "dark";
-  }
-
-  function setTheme(theme){
-    root.setAttribute("data-theme", theme);
-    localStorage.setItem("kns_theme", theme);
-    setEmbeds();
-  }
-
-  document.getElementById("toggleTheme").addEventListener("click", () => {
-    setTheme(getTheme() === "dark" ? "light" : "dark");
-  });
-
-  // ====== EMBEDS (atualiza theme=dark|light nos iframes) ======
-  function grafanaSrc(panelId){
-    const theme = getTheme();
-    return `${GRAFANA_BASE}/d-solo/${DASH_UID}/${DASH_SLUG}` +
-      `?orgId=${ORG_ID}` +
-      `&from=now-24h&to=now` +
-      `&timezone=browser` +
-      `&theme=${theme}` +
-      `&panelId=${encodeURIComponent(panelId)}` +
-      `&__feature.dashboardSceneSolo=true`;
-  }
-
-  function setEmbeds(){
-    Object.keys(PANELS).forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.src = grafanaSrc(PANELS[id]);
-    });
-  }
-
-  // Tema inicial
-  setTheme(localStorage.getItem("kns_theme") || "dark");
-
-  // ====== STATUS GERAL (Zabbix/Proxy em /kns-metrics) ======
-  const elCpu = document.getElementById("cpu");
-  const elMem = document.getElementById("mem");
-  const elLat = document.getElementById("lat");
-  const elAtk = document.getElementById("ataques");
-  const elSt  = document.getElementById("status");
-  const elSec = document.getElementById("seguranca");
-
-  function setStatus(text, isBad){
-    elSt.textContent = text;
-    elSt.className = isBad ? "bad" : "ok";
-  }
-
-  async function atualizarStatus(){
-    try{
-      const r = await fetch(METRICS_ENDPOINT, { cache: "no-store" });
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      const d = await r.json();
-
-      elCpu.textContent = (d.cpu ?? "--");
-      elMem.textContent = (d.memoria ?? "--");
-      elLat.textContent = (d.latencia ?? "--");
-      elAtk.textContent = (d.ataques ?? "--");
-
-      const lat = Number(d.latencia);
-      const mem = Number(d.memoria);
-      const atk = Number(d.ataques);
-
-      let crit = false;
-      if (Number.isFinite(lat) && lat > 120) crit = true;
-      if (Number.isFinite(mem) && mem > 90)  crit = true;
-
-      if (crit) setStatus("CRÍTICO", true);
-      else if ((Number.isFinite(lat) && lat > 80) || (Number.isFinite(mem) && mem > 80)) setStatus("ALERTA", true);
-      else setStatus("OK", false);
-
-      elSec.textContent = (Number.isFinite(atk) && atk >= 3) ? "INCIDENTE" : "OK";
-    }catch(e){
-      elCpu.textContent = "--";
-      elMem.textContent = "--";
-      elLat.textContent = "--";
-      elAtk.textContent = "--";
-      elSec.textContent = "--";
-      setStatus("API OFFLINE", true);
+    async function sendAction(actionType) {
+        addLog("SYS", `Action: ${actionType}...`);
+        try { fetch('/api/actions', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: actionType }) }); } catch(e){}
     }
-  }
+    async function simulateAttack() { sendAction('SIMULATE_ATTACK'); }
 
-  setInterval(atualizarStatus, 5000);
-  atualizarStatus();
+    async function updateData() {
+        try {
+            const res = await fetch('/api/enterprise-status');
+            const data = await res.json();
+            const dict = translations[currentLang];
+            
+            updateRegion('reg-latam', data.regions.latam);
+            updateRegion('reg-us', data.regions.useast);
+            updateRegion('reg-eu', data.regions.euwest);
+            
+            document.getElementById('action-routing').style.display = data.business.latency_issue ? 'block' : 'none';
+            const isAttack = data.business.is_under_attack;
+            const secEl = document.getElementById('sec-status');
+            if(isAttack) {
+                secEl.innerText = dict.sec_crit; secEl.style.color = "var(--neon-red)"; secEl.classList.add("blink");
+                document.getElementById('action-mitigate').style.display = 'block';
+            } else {
+                secEl.innerText = dict.sec_safe; secEl.style.color = "var(--neon-green)"; secEl.classList.remove("blink");
+                document.getElementById('action-mitigate').style.display = 'none';
+            }
+            document.getElementById('cpu-bar').style.width = data.system.cpu + "%";
+            document.getElementById('cpu-txt').innerText = data.system.cpu + "%";
+            document.getElementById('rps-val').innerText = data.business.rps.toLocaleString();
+        } catch(e) {}
+    }
+    function updateRegion(id, data) {
+        const el = document.getElementById(id);
+        el.querySelector('.region-val').innerText = data.ms + "ms";
+        el.querySelector('.region-val').style.color = data.status === 'ONLINE' ? 'var(--neon-green)' : 'var(--neon-red)';
+    }
+    function changeLang(lang) {
+        currentLang = lang; localStorage.setItem('kns_lang', lang);
+        document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${lang}`).classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang'); if(translations[lang][key]) el.innerText = translations[lang][key];
+        });
+    }
+    function toggleTheme() {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute("data-theme", currentTheme);
+        // Recarrega iframes para mudar tema (simples reload)
+        document.querySelectorAll('iframe').forEach(ifr => {
+           let url = new URL(ifr.src);
+           url.searchParams.set('theme', currentTheme);
+           ifr.src = url.toString();
+        });
+    }
+    function addLog(lvl, msg) {
+        const t = document.getElementById('log-terminal');
+        const div = document.createElement('div');
+        div.className = 'log-row';
+        let cl = 'lvl-info'; if(lvl==='CRIT') cl='lvl-crit'; if(lvl==='WARN') cl='lvl-warn'; if(lvl==='SYS') cl='lvl-sys';
+        div.innerHTML = `<span style="opacity:0.6">${new Date().toLocaleTimeString()}</span> <span class="${cl}">[${lvl}]</span> ${msg}`;
+        t.prepend(div); if(t.children.length > 30) t.removeChild(t.lastChild);
+    }
 
-  // ====== NOTA PRÁTICA (sem travar a execução) ======
-  // Se os iframes ficarem vazios, o mais comum é o Grafana exigir login (iframe não autenticado).
-  // A solução é habilitar anonymous access ou outro método de embed sem login.
+    changeLang(currentLang);
+    setInterval(updateData, 2000);
+    addLog("SYS", "KNS Command Center Initialized.");
 </script>
 </body>
 </html>

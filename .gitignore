@@ -3,3 +3,11 @@ node_modules
 .DS_Store
 dist
 coverage
+__pycache__/
+*.pyc
+*.log
+node_modules/
+.env
+.vscode/
+dist/
+firewall_audit.log
