@@ -3,339 +3,369 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KNS | NEXT-GEN OPS</title>
+<title>KNS G-NOC-SOC | Command Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-/* --- ESTÉTICA CYBERPUNK --- */
+/* --- VARIÁVEIS DE TEMA --- */
 :root {
-    --bg-dark: #030507;
-    --neon-cyan: #00f3ff;
-    --neon-pink: #ff0055;
-    --neon-green: #0aff00;
-    --glass: rgba(10, 20, 30, 0.6);
+    --bg-color: #050a14;
+    --glass-bg: rgba(20, 30, 50, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --neon-blue: #3b82f6;
+    --neon-green: #10b981;
+    --neon-red: #ef4444;
+    --neon-yellow: #f59e0b;
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --log-bg: rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] {
+    --bg-color: #f1f5f9;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --neon-blue: #0284c7;
+    --neon-green: #16a34a;
+    --neon-red: #dc2626;
+    --neon-yellow: #d97706;
+    --card-shadow: 0 8px 24px rgba(148, 163, 184, 0.4);
+    --log-bg: rgba(255,255,255,0.8);
 }
 
 * { box-sizing: border-box; transition: all 0.3s ease; }
 
 body {
-    margin: 0; padding: 20px;
-    background-color: var(--bg-dark);
-    color: #fff;
-    font-family: 'Rajdhani', sans-serif;
-    height: 100vh; overflow: hidden;
-    /* Fundo Tecnológico */
-    background-image: 
-        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
+    margin: 0; padding: 15px;
+    background-color: var(--bg-color);
+    background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+    background-size: 40px 40px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden; 
 }
 
-/* Scanlines CRT */
-body::after {
-    content: " "; display: block; position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-    background-size: 100% 4px; z-index: 999; pointer-events: none; opacity: 0.3;
+/* --- ANIMAÇÕES DE PULSO (NOVO) --- */
+@keyframes pulse-green {
+    0% { text-shadow: 0 0 0 rgba(16, 185, 129, 0.7); transform: scale(1); }
+    50% { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); transform: scale(1.1); }
+    100% { text-shadow: 0 0 0 rgba(16, 185, 129, 0.7); transform: scale(1); }
 }
 
-/* --- LAYOUT --- */
-.cyber-grid {
+@keyframes pulse-border-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulse-border-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* --- GRID PRINCIPAL --- */
+.dashboard-grid {
     display: grid;
-    grid-template-columns: 320px 1fr;
-    grid-template-rows: 70px 1fr 120px;
-    gap: 20px;
-    height: calc(100vh - 40px);
-    position: relative; z-index: 2;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 15px;
+    height: calc(100vh - 30px);
 }
 
-/* --- HEADER --- */
 .header {
-    grid-column: 1 / -1;
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 2px solid var(--neon-cyan);
-    background: linear-gradient(90deg, rgba(0,243,255,0.1), transparent);
-    padding: 0 20px;
-    text-transform: uppercase;
+    grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; background: var(--bg-color);
 }
-.logo { font-family: 'Orbitron'; font-size: 32px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 15px var(--neon-cyan); }
-.logo span { color: var(--neon-cyan); }
+.brand h1 { font-family: 'JetBrains Mono', monospace; font-size: 22px; margin: 0; letter-spacing: -1px; }
+.brand span { color: var(--neon-blue); }
 
-.top-controls { display: flex; gap: 30px; align-items: center; }
-.sys-info { display: flex; gap: 20px; font-size: 14px; font-weight: bold; color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
-.lang-flags img { width: 30px; cursor: pointer; opacity: 0.6; margin-left: 10px; transition: 0.2s; }
-.lang-flags img:hover, .lang-flags img.active { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px var(--neon-cyan); }
+/* --- CONTROLES --- */
+.controls { display: flex; align-items: center; gap: 15px; }
+.lang-flags { display: flex; gap: 8px; border-right: 1px solid var(--glass-border); padding-right: 15px; }
+.flag-btn { width: 24px; height: 16px; cursor: pointer; border-radius: 2px; opacity: 0.5; }
+.flag-btn.active, .flag-btn:hover { opacity: 1; transform: scale(1.1); }
+
+.btn-icon {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main);
+    width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+
+/* Indicador de Status Geral (Pulsante) */
+.sys-dot {
+    display: inline-block;
+    color: var(--neon-green);
+    animation: pulse-green 2s infinite;
+}
+
+/* --- GLASS CARDS (COM HOVER NOVO) --- */
+.glass-card {
+    background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+    border-radius: 10px; padding: 15px; box-shadow: var(--card-shadow);
+    display: flex; flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+/* Efeito Hover Neon */
+.glass-card:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); 
+    transform: translateY(-2px);
+}
 
 /* --- SIDEBAR --- */
-.sidebar { grid-row: 2 / 3; display: flex; flex-direction: column; gap: 20px; }
+.sidebar { display: flex; flex-direction: column; gap: 10px; grid-row: 2 / 3; overflow-y: auto; }
+.metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; display: flex; justify-content: space-between;}
+.metric-value { font-family: 'JetBrains Mono'; font-size: 24px; font-weight: 700; color: var(--text-main); margin: 2px 0; }
+.metric-bar-bg { height: 4px; background: rgba(128,128,128,0.2); border-radius: 2px; overflow: hidden; margin-top:5px; }
+.metric-fill { height: 100%; background: var(--neon-blue); width: 0%; transition: width 1s ease; }
 
-.cyber-card {
-    background: var(--glass);
-    border: 1px solid rgba(0, 243, 255, 0.3);
-    padding: 20px; position: relative;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+.global-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 8px; }
+.region-box { background: var(--log-bg); padding: 5px; border-radius: 4px; border-left: 2px solid transparent; font-size: 12px; transition: all 0.3s; }
+.region-val { font-family: 'JetBrains Mono'; font-weight: bold; }
+
+/* Status com animação de borda */
+.status-ok { 
+    border-color: var(--neon-green); 
+    color: var(--neon-green); 
+    /* animation: pulse-border-green 2s infinite; Removido para não poluir demais, ativado se quiser */
 }
-.cyber-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-    background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);
+.status-bad { 
+    border-color: var(--neon-red); 
+    color: var(--neon-red); 
+    animation: pulse-border-red 1.5s infinite; /* Alerta visual forte */
 }
 
-.metric-title { font-size: 14px; color: var(--neon-cyan); letter-spacing: 2px; margin-bottom: 5px; display: block; font-weight: 700; }
-.metric-big { font-family: 'Orbitron'; font-size: 42px; color: #fff; }
-.unit { font-size: 16px; color: #888; }
-
-/* Status de Segurança */
-.sec-box { text-align: center; padding: 25px 0; border: 2px dashed var(--neon-green); margin-top: 15px; transition: all 0.3s; background: rgba(0, 255, 0, 0.05); }
-.sec-text { font-family: 'Orbitron'; font-size: 22px; color: var(--neon-green); font-weight: 900; text-shadow: 0 0 10px var(--neon-green); }
-
-/* Botão de Mitigação (Oculto por padrão) */
-.btn-mitigate {
-    display: none; width: 100%; margin-top: 15px;
-    background: var(--neon-red); border: none; color: #fff;
-    padding: 15px; font-weight: bold; font-family: 'Orbitron'; font-size: 14px;
-    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-    box-shadow: 0 0 20px var(--neon-red);
-    animation: pulse 0.5s infinite alternate;
+.action-area { margin-top: 8px; display: none; }
+.btn-action {
+    width: 100%; padding: 8px; border: none; border-radius: 4px; cursor: pointer;
+    font-weight: bold; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px;
+    text-transform: uppercase; color: #fff; margin-bottom: 5px;
 }
-.btn-mitigate:hover { background: #fff; color: var(--neon-red); }
+.btn-crit { background: var(--neon-red); animation: pulseBtn 1.5s infinite; }
+.btn-warn { background: var(--neon-yellow); color: #000; }
 
-/* --- MAIN STAGE (GRAFANA) --- */
-.main-stage {
-    grid-column: 2 / 3; grid-row: 2 / 3;
+/* --- MAIN STAGE (GRID DE 5 GRÁFICOS) --- */
+.main-stage { 
+    grid-column: 2 / 3; 
+    grid-row: 2 / 3;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 60% 40%;
-    gap: 20px;
+    /* Divide em 6 colunas virtuais para flexibilidade */
+    grid-template-columns: repeat(6, 1fr);
+    /* 2 linhas de altura: Topo 55%, Baixo 45% */
+    grid-template-rows: 55% 45%; 
+    gap: 10px;
+    overflow: hidden;
 }
-.grafana-frame { width: 100%; height: 100%; border: 0; opacity: 0.9; filter: contrast(1.1) brightness(1.1) saturate(1.2); }
-.g-large-1 { grid-column: span 2; }
-.g-large-2 { grid-column: span 1; }
-.g-small { grid-column: span 1; }
 
-/* --- FOOTER LOGS --- */
-.footer {
-    grid-column: 1 / -1;
-    background: #000; border-top: 2px solid var(--neon-cyan);
-    font-family: 'Courier New', monospace; font-size: 13px;
-    padding: 15px; overflow-y: hidden; color: var(--neon-cyan);
-    display: flex; flex-direction: column; justify-content: flex-end;
+/* Container do Iframe */
+.grafana-box {
+    padding: 0 !important;
+    position: relative;
+    overflow: hidden;
 }
-.log-line { margin-bottom: 4px; border-bottom: 1px solid rgba(0, 243, 255, 0.1); padding-bottom: 2px; }
-.t-stamp { color: #555; margin-right: 15px; }
+iframe { width: 100%; height: 100%; border: 0; display: block; }
 
-/* --- MODO ATAQUE --- */
-.alert-mode .cyber-card { border-color: var(--neon-red); }
-.alert-mode .cyber-card::before { background: var(--neon-red); box-shadow: 0 0 20px var(--neon-red); }
-.alert-mode .sec-box { border-color: var(--neon-red); background: rgba(255, 0, 0, 0.1); animation: shake 0.5s infinite; }
-.alert-mode .sec-text { color: var(--neon-red); text-shadow: 0 0 20px var(--neon-red); animation: blink 0.2s infinite; }
-.alert-mode .header { border-bottom-color: var(--neon-red); }
-.alert-mode .logo span { color: var(--neon-red); }
-.alert-mode .footer { border-top-color: var(--neon-red); color: var(--neon-red); }
+/* Topo: Gráficos ocupam metade cada (3 colunas de 6) */
+.box-large { grid-column: span 3; }
 
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.03); } }
-@keyframes shake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-1px, -2px); } 50% { transform: translate(-3px, 0px); } 75% { transform: translate(3px, 2px); } 100% { transform: translate(1px, -1px); } }
+/* Baixo: Gráficos ocupam um terço cada (2 colunas de 6) */
+.box-small { grid-column: span 2; }
 
+
+/* --- LOGS --- */
+.logs-panel { grid-column: 1 / -1; height: 100px; overflow: hidden; grid-row: 3 / 4; }
+.logs-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.log-terminal { font-family: 'JetBrains Mono', monospace; font-size: 11px; overflow-y: auto; height: 100%; background: var(--log-bg); padding: 8px; border-radius: 4px; }
+.log-row { padding: 2px 0; border-bottom: 1px solid var(--glass-border); display: flex; gap: 10px; }
+.lvl-crit { color: var(--neon-red); font-weight:bold; }
+.lvl-warn { color: var(--neon-yellow); font-weight:bold; }
+.lvl-info { color: var(--neon-blue); font-weight:bold; }
+.lvl-sys  { color: var(--neon-green); font-weight:bold; }
+
+@keyframes blink { 50% { opacity: 0.5; } }
+@keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 </style>
 </head>
+
 <body>
 
-<div class="cyber-grid">
+<div class="dashboard-grid">
     <div class="header">
-        <div class="logo">KNS <span>// COMMAND_NODE</span></div>
-        <div class="top-controls">
-            <div class="sys-info">
-                <div id="lbl-server"><i class="fa-solid fa-server"></i> SERVER: ONLINE</div>
-                <div id="lbl-firewall"><i class="fa-solid fa-shield-halved"></i> FIREWALL: ACTIVE</div>
-                <div style="cursor:pointer; color:var(--neon-pink); font-weight:900" onclick="triggerChaos()" id="lbl-sim">[ SIMULAR INVASÃO ]</div>
-            </div>
+        <div class="brand"><h1>KNS<span>_COMMAND_CENTER</span></h1></div>
+        <div class="controls">
             <div class="lang-flags">
-                <img src="https://flagcdn.com/w40/br.png" class="active" onclick="setLang('pt')" id="flag-pt">
-                <img src="https://flagcdn.com/w40/us.png" onclick="setLang('en')" id="flag-en">
+                <img src="https://flagcdn.com/w40/br.png" class="flag-btn active" id="btn-pt" onclick="changeLang('pt')">
+                <img src="https://flagcdn.com/w40/us.png" class="flag-btn" id="btn-en" onclick="changeLang('en')">
+            </div>
+            <button class="btn-icon" onclick="simulateAttack()" title="Simular Ataque"><i class="fa-solid fa-bug"></i></button>
+            <button class="btn-icon" onclick="toggleTheme()" title="Tema"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <div style="font-size:11px; color:var(--neon-green); font-weight:bold">
+                <span class="sys-dot">●</span> <span data-lang="sys_status">ONLINE</span>
             </div>
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="cyber-card">
-            <span class="metric-title" id="t-net">CARGA DE REDE (GLOBAL)</span>
-            <span class="metric-big" id="net-load">1.2</span> <span class="unit">Tbps</span>
-            <div style="height:4px; width:100%; background:#222; margin-top:10px;"><div id="bar-load" style="height:100%; width:45%; background:var(--neon-cyan); box-shadow:0 0 10px var(--neon-cyan)"></div></div>
-        </div>
-
-        <div class="cyber-card">
-            <span class="metric-title" id="t-nodes">NODES ATIVOS</span>
-            <span class="metric-big">4,829</span>
-        </div>
-
-        <div class="cyber-card">
-            <span class="metric-title" id="t-threat">NÍVEL DE AMEAÇA</span>
-            <div class="sec-box">
-                <div class="sec-text" id="sec-status">SEGURO</div>
+    <aside class="sidebar">
+        <div class="glass-card">
+            <span class="metric-label"><span data-lang="lbl_latency">Latência Global</span> <i class="fa-solid fa-globe"></i></span>
+            <div class="global-grid">
+                <div class="region-box" id="reg-latam"><div class="region-val">--</div></div>
+                <div class="region-box" id="reg-us"><div class="region-val">--</div></div>
+                <div class="region-box" id="reg-eu"><div class="region-val">--</div></div>
             </div>
-            <button onclick="mitigate()" class="btn-mitigate" id="btn-mitigate">INICIAR PROTOCOLO 9</button>
-        </div>
-    </div>
-
-    <div class="main-stage">
-        <div class="cyber-card g-large-1" style="padding:0; overflow:hidden">
-            <iframe class="grafana-frame" src="http://localhost:3000/d-solo/adlvx49/kns-monitor?orgId=1&from=now-5m&to=now&timezone=browser&refresh=2s&panelId=4&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+            <div id="action-routing" class="action-area">
+                <button class="btn-action btn-warn" onclick="sendAction('REROUTE_TRAFFIC')">
+                    <i class="fa-solid fa-route"></i> BGP Optimize
+                </button>
+            </div>
         </div>
 
-        <div class="cyber-card g-large-2" style="padding:0; overflow:hidden">
-            <iframe class="grafana-frame" src="http://localhost:3000/d-solo/adlvx49/kns-monitor?orgId=1&from=now-5m&to=now&timezone=browser&refresh=2s&panelId=2&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        <div class="glass-card">
+            <span class="metric-label" data-lang="lbl_cpu">Node.js CPU</span>
+            <div class="metric-value" id="cpu-txt">--%</div>
+            <div class="metric-bar-bg"><div id="cpu-bar" class="metric-fill"></div></div>
         </div>
 
-        <div class="cyber-card g-small" style="padding:0; overflow:hidden">
-            <iframe class="grafana-frame" src="http://localhost:3000/d-solo/adlvx49/kns-monitor?orgId=1&from=now-5m&to=now&timezone=browser&refresh=2s&panelId=1&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        <div class="glass-card">
+             <span class="metric-label" data-lang="lbl_security">Status Segurança</span>
+             <div class="metric-value" id="sec-status" style="color:var(--neon-green); font-size:18px;">SECURE</div>
+             <div id="action-mitigate" class="action-area">
+                 <button class="btn-action btn-crit" onclick="sendAction('MITIGATE_DDOS')">
+                    <i class="fa-solid fa-shield-halved"></i> MITIGATE
+                </button>
+            </div>
         </div>
 
-        <div class="cyber-card g-small" style="padding:0; overflow:hidden">
-            <iframe class="grafana-frame" src="http://localhost:3000/d-solo/adlvx49/kns-monitor?orgId=1&from=now-5m&to=now&timezone=browser&refresh=2s&panelId=3&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        <div class="glass-card">
+            <span class="metric-label" data-lang="lbl_sessions">Tráfego (L7)</span>
+            <div class="metric-value" id="rps-val">--</div>
+            <small style="color:var(--text-muted); font-size:9px;">Req/Sec</small>
+        </div>
+    </aside>
+
+    <main class="main-stage">
+        
+        <div class="glass-card grafana-box box-large">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=4&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
         </div>
 
-        <div class="cyber-card g-small" style="padding:0; overflow:hidden">
-            <iframe class="grafana-frame" src="http://localhost:3000/d-solo/adlvx49/kns-monitor?orgId=1&from=now-5m&to=now&timezone=browser&refresh=2s&panelId=6&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        <div class="glass-card grafana-box box-large">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=2&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
         </div>
-    </div>
 
-    <div class="footer" id="terminal-log">
-        <div class="log-line"><span class="t-stamp">INIT</span> SYSTEM INITIALIZED. KNS MONITORING ACTIVE.</div>
-    </div>
+        <div class="glass-card grafana-box box-small">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=3&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+        <div class="glass-card grafana-box box-small">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=5&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+        <div class="glass-card grafana-box box-small">
+            <iframe src="http://localhost:3000/d-solo/adlvx49/new-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&refresh=5s&panelId=6&__feature.dashboardSceneSolo=true&theme=dark" frameborder="0"></iframe>
+        </div>
+
+    </main>
+
+    <footer class="glass-card logs-panel">
+        <div class="logs-header"><strong data-lang="log_title">Audit Log</strong><span>Multi-Panel View</span></div>
+        <div class="log-terminal" id="log-terminal"></div>
+    </footer>
 </div>
 
 <script>
-    // --- TRADUÇÕES ---
-    const texts = {
-        pt: {
-            server: '<i class="fa-solid fa-server"></i> SERVIDOR: ONLINE',
-            firewall: '<i class="fa-solid fa-shield-halved"></i> FIREWALL: ATIVO',
-            sim: '[ SIMULAR INVASÃO ]',
-            net: 'CARGA DE REDE (GLOBAL)',
-            nodes: 'NODES ATIVOS',
-            threat: 'NÍVEL DE AMEAÇA',
-            secure: 'SEGURO',
-            breach: 'INVASÃO CRÍTICA',
-            mitigate: 'INICIAR PROTOCOLO 9',
-            log_start: 'SISTEMA INICIADO. MONITORAMENTO ATIVO.',
-            log_warn: 'TENTATIVA DE ACESSO BLOQUEADA.'
-        },
-        en: {
-            server: '<i class="fa-solid fa-server"></i> SERVER: ONLINE',
-            firewall: '<i class="fa-solid fa-shield-halved"></i> FIREWALL: ACTIVE',
-            sim: '[ SIMULATE BREACH ]',
-            net: 'NETWORK LOAD (GLOBAL)',
-            nodes: 'ACTIVE NODES',
-            threat: 'THREAT LEVEL',
-            secure: 'SECURE',
-            breach: 'CRITICAL BREACH',
-            mitigate: 'INITIATE PROTOCOL 9',
-            log_start: 'SYSTEM INITIALIZED. MONITORING ACTIVE.',
-            log_warn: 'ACCESS ATTEMPT BLOCKED.'
-        }
+    // --- SCRIPT PADRÃO ---
+    const translations = {
+        pt: { sys_status: "ONLINE", lbl_latency: "Latência Global", lbl_cpu: "Carga Node", lbl_security: "Status Segurança", lbl_sessions: "Tráfego", btn_reroute: "Otimizar BGP", btn_mitigate: "MITIGAR ATAQUE", log_title: "Fluxo de Auditoria", sec_safe: "SEGURO", sec_crit: "ATAQUE DETECTADO" },
+        en: { sys_status: "ONLINE", lbl_latency: "Global Latency", lbl_cpu: "Node Load", lbl_security: "Security Status", lbl_sessions: "Traffic", btn_reroute: "Optimize BGP", btn_mitigate: "MITIGATE ATTACK", log_title: "Audit Stream", sec_safe: "SECURE", sec_crit: "ATTACK DETECTED" }
     };
+    let currentLang = localStorage.getItem('kns_lang') || 'pt';
+    let currentTheme = localStorage.getItem('kns_theme') || 'dark';
 
-    let curLang = 'pt';
-
-    function setLang(lang) {
-        curLang = lang;
-        // Atualiza UI
-        document.getElementById('flag-pt').className = lang === 'pt' ? 'active' : '';
-        document.getElementById('flag-en').className = lang === 'en' ? 'active' : '';
-        
-        // Atualiza Textos
-        const t = texts[lang];
-        document.getElementById('lbl-server').innerHTML = t.server;
-        document.getElementById('lbl-firewall').innerHTML = t.firewall;
-        document.getElementById('lbl-sim').innerHTML = t.sim;
-        document.getElementById('t-net').innerText = t.net;
-        document.getElementById('t-nodes').innerText = t.nodes;
-        document.getElementById('t-threat').innerText = t.threat;
-        document.getElementById('btn-mitigate').innerText = t.mitigate;
-        
-        // Mantém status correto do ataque
-        if(document.body.classList.contains('alert-mode')) {
-             document.getElementById('sec-status').innerText = t.breach;
-        } else {
-             document.getElementById('sec-status').innerText = t.secure;
-        }
+    async function sendAction(actionType) {
+        addLog("SYS", `Action: ${actionType}...`);
+        try { fetch('/api/actions', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: actionType }) }); } catch(e){}
     }
+    async function simulateAttack() { sendAction('SIMULATE_ATTACK'); }
 
-    function addLog(msg, type="INFO") {
-        const term = document.getElementById('terminal-log');
-        const line = document.createElement('div');
-        line.className = 'log-line';
-        const color = type === 'CRIT' ? '#ff0055' : (type === 'WARN' ? '#ffaa00' : '#00f3ff');
-        line.innerHTML = `<span class="t-stamp">${new Date().toLocaleTimeString()}</span> <span style="color:${color}">[${type}]</span> ${msg}`;
-        term.prepend(line);
-        if(term.children.length > 8) term.removeChild(term.lastChild);
-    }
-
-    // --- MODO CAOS (ATAQUE) ---
-    function triggerChaos() {
-        document.body.classList.add('alert-mode');
-        document.getElementById('sec-status').innerText = texts[curLang].breach;
-        
-        // MOSTRA O BOTÃO DE PARAR
-        document.getElementById('btn-mitigate').style.display = 'block';
-        
-        addLog("UNAUTHORIZED ACCESS DETECTED ON PORT 443", "CRIT");
-        addLog("DDOS SIGNATURE RECOGNIZED", "CRIT");
-    }
-
-    // --- FUNÇÃO REAL (FULL STACK): CHAMA O BACKEND PYTHON ---
-    async function mitigate() {
-        const btn = document.getElementById('btn-mitigate');
-        
-        // 1. Feedback visual imediato (UX)
-        btn.innerText = curLang === 'pt' ? "EXECUTANDO PROTOCOLO..." : "EXECUTING PROTOCOL...";
-        btn.style.opacity = "0.7";
-        addLog(curLang === 'pt' ? "CONTATANDO SECURITY GATEWAY..." : "CONTACTING SECURITY GATEWAY...", "WARN");
-
+    async function updateData() {
         try {
-            // 2. Chama a API Python (O Pulo do Gato)
-            const response = await fetch('http://localhost:5001/api/mitigate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                // 3. Se o Python confirmou, atualiza a tela
-                document.body.classList.remove('alert-mode');
-                
-                // Atualiza textos
-                document.getElementById('sec-status').innerText = texts[curLang].secure;
-
-                // Some com o botão
-                btn.style.display = 'none';
-                
-                // Adiciona log com a mensagem real do servidor
-                addLog(`SERVER CONFIRMATION: ${data.action}`, "SYS");
-                addLog(curLang === 'pt' ? "AMEAÇA NEUTRALIZADA. SISTEMAS ESTABILIZANDO." : "THREAT NEUTRALIZED. SYSTEMS STABILIZING.", "INFO");
+            const res = await fetch('/api/enterprise-status');
+            const data = await res.json();
+            const dict = translations[currentLang];
+            
+            updateRegion('reg-latam', data.regions.latam);
+            updateRegion('reg-us', data.regions.useast);
+            updateRegion('reg-eu', data.regions.euwest);
+            
+            document.getElementById('action-routing').style.display = data.business.latency_issue ? 'block' : 'none';
+            const isAttack = data.business.is_under_attack;
+            const secEl = document.getElementById('sec-status');
+            if(isAttack) {
+                secEl.innerText = dict.sec_crit; secEl.style.color = "var(--neon-red)"; secEl.classList.add("blink");
+                document.getElementById('action-mitigate').style.display = 'block';
             } else {
-                addLog("ERROR EXECUTING PROTOCOL!", "CRIT");
+                secEl.innerText = dict.sec_safe; secEl.style.color = "var(--neon-green)"; secEl.classList.remove("blink");
+                document.getElementById('action-mitigate').style.display = 'none';
             }
-
-        } catch (error) {
-            console.error(error);
-            addLog("CONNECTION TO BACKEND FAILED. IS PYTHON RUNNING?", "CRIT");
-            btn.innerText = "CONNECTION ERROR";
+            document.getElementById('cpu-bar').style.width = data.system.cpu + "%";
+            document.getElementById('cpu-txt').innerText = data.system.cpu + "%";
+            document.getElementById('rps-val').innerText = data.business.rps.toLocaleString();
+        } catch(e) {}
+    }
+    function updateRegion(id, data) {
+        const el = document.getElementById(id);
+        el.querySelector('.region-val').innerText = data.ms + "ms";
+        
+        // Remove classes antigas para atualizar status
+        el.classList.remove('status-ok', 'status-bad');
+        
+        if (data.status === 'ONLINE') {
+            el.querySelector('.region-val').style.color = 'var(--neon-green)';
+            el.classList.add('status-ok');
+        } else {
+            el.querySelector('.region-val').style.color = 'var(--neon-red)';
+            el.classList.add('status-bad');
         }
     }
+    function changeLang(lang) {
+        currentLang = lang; localStorage.setItem('kns_lang', lang);
+        document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${lang}`).classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang'); if(translations[lang][key]) el.innerText = translations[lang][key];
+        });
+    }
+    function toggleTheme() {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute("data-theme", currentTheme);
+        // Recarrega iframes para mudar tema (simples reload)
+        document.querySelectorAll('iframe').forEach(ifr => {
+           let url = new URL(ifr.src);
+           url.searchParams.set('theme', currentTheme);
+           ifr.src = url.toString();
+        });
+    }
+    function addLog(lvl, msg) {
+        const t = document.getElementById('log-terminal');
+        const div = document.createElement('div');
+        div.className = 'log-row';
+        let cl = 'lvl-info'; if(lvl==='CRIT') cl='lvl-crit'; if(lvl==='WARN') cl='lvl-warn'; if(lvl==='SYS') cl='lvl-sys';
+        div.innerHTML = `<span style="opacity:0.6">${new Date().toLocaleTimeString()}</span> <span class="${cl}">[${lvl}]</span> ${msg}`;
+        t.prepend(div); if(t.children.length > 30) t.removeChild(t.lastChild);
+    }
 
-    // Simulação de fundo
-    setInterval(() => {
-        const load = (Math.random() * (1.8 - 0.8) + 0.8).toFixed(2);
-        document.getElementById('net-load').innerText = load;
-        document.getElementById('bar-load').style.width = (load * 30) + "%";
-    }, 2000);
-
+    changeLang(currentLang);
+    setInterval(updateData, 2000);
+    addLog("SYS", "KNS Command Center Initialized.");
 </script>
 </body>
 </html>
