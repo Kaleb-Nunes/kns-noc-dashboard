@@ -1,20 +1,35 @@
-# 🚀 KNS Command Center | Protocolo 09
+KNS Command Center | Protocolo 09
+Painel de Monitoramento de Rede (NOC/SOC) de alta performance, desenvolvido para visualização crítica de infraestrutura em tempo real. Este projeto integra métricas reais do Zabbix com uma interface reativa e automação de "Auto-Healing" via Python.
 
-Painel de Monitoramento de Rede (NOC/SOC) de alta performance, desenvolvido para visualização em tempo real de infraestruturas críticas. Este projeto integra métricas reais do **Zabbix** com uma interface reativa moderna.
+🛠️ Stack Tecnológica
+Frontend: HTML5, CSS3 (Neon Grid System) e JavaScript Puro.
 
-## 🛠️ Tecnologias Utilizadas
-* **Backend:** Node.js com Express (Modo Híbrido: Simulação + Dados Reais).
-* **Inteligência/Coleta:** Python (Sentinela de Auto-Healing) integrado à API do Zabbix.
-* **Frontend:** HTML5/CSS3 com efeitos Neon e Grid Dinâmico.
-* **Integração:** Túneis seguros para monitoramento de borda (Edge Monitoring).
+Backend: Node.js com Express para orquestração híbrida.
 
-## 📊 Funcionalidades
-* **Monitoramento em Tempo Real:** Visualização de Mbps da interface Wi-Fi (Host 10777).
-* **Simulação de Incidentes:** Botão para disparar protocolos de ataque DDoS e Mitigação.
-* **Alertas Visuais:** Card de tráfego com animação de pulso (Glow) ao exceder 50 Mbps.
-* **Log de Sistema:** Terminal integrado para acompanhamento de eventos do Sentinela.
+Inteligência: Python 3 (Sentinela) integrado à API JSON-RPC do Zabbix.
 
-## 🚀 Como Executar
-1. **Servidor Node.js:**
-   ```bash
-   node server.js
+Infraestrutura: Docker e Túneis Privados para Edge Monitoring.
+
+📊 Diferenciais do Projeto
+Monitoramento Real: Conexão direta com Host 10777 do Zabbix para leitura de tráfego Wi-Fi.
+
+Interface Reativa: Alertas visuais de saturação (Glow Pulse) quando o tráfego excede 50 Mbps.
+
+Modo Híbrido: Capacidade de operar com dados simulados ou reais, garantindo alta disponibilidade do painel.
+
+Sentinela de Autocura: Script Python que monitora latência e pode disparar ações automáticas de mitigação.
+
+Como Executar
+Para rodar o ecossistema completo no seu ambiente:
+
+Inicie o Dashboard (Node.js):
+
+Bash
+node server.js
+Ative o Sentinela (Python):
+
+Bash
+python3 scripts/auto_healing.py
+Acesse a Interface: O painel estará disponível na porta 3000.
+
+🚀 Desenvolvido por Kaleb Nunes - Consultor de Implantação e Infraestrutura.
