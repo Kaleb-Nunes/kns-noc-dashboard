@@ -1,123 +1,77 @@
-﻿const express = require("express");
-const axios = require("axios");
-const { exec } = require("child_process");
-const path = require("path");
-
-const APP_PORT = 5000;
+const express = require('express');
+const path = require('path');
 const app = express();
+const PORT = 3000;
+
+// Serve arquivos estáticos (CSS, Imagens, JS do front)
+app.use(express.static(path.join(__dirname, '.')));
 app.use(express.json());
 
-// --- CONFIGURAÇÃO PROD (LOCAL STABLE) ---
-// Usamos host.docker.internal para garantir conexão eterna com o Docker Desktop
-const ZABBIX_CONFIG = {
-    url: "http://host.docker.internal:8080/api_jsonrpc.php", 
-    user: "Admin",
-    pass: "zabbix"
+// --- ESTADO DA SIMULAÇÃO ---
+let simulationState = {
+    isUnderAttack: false,
+    latencyIssue: false,
+    trafficSpike: false
 };
 
-let zabbixToken = null;
-let systemState = { latencyMod: 0, ddosActive: false };
+// --- ROTA PRINCIPAL (DASHBOARD) ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-let globalStats = {
-    latam: { target: 'uol.com.br', ms: 0, status: 'OK' },
-    useast: { target: 'google.com', ms: 0, status: 'OK' },
-    euwest: { target: 'bbc.com', ms: 0, status: 'OK' }
-};
-
-let realMetrics = { cpu: 0, mem: 0, source: "Local" };
-
-// --- CONEXÃO ZABBIX ---
-async function zabbixAuth() {
-    try {
-        const res = await axios.post(ZABBIX_CONFIG.url, {
-            jsonrpc: "2.0", method: "user.login",
-            params: { username: ZABBIX_CONFIG.user, password: ZABBIX_CONFIG.pass },
-            id: 1
-        });
-        
-        if (res.data.result) {
-            zabbixToken = res.data.result;
-            console.log(" Zabbix Conectado! Token: " + zabbixToken.substring(0, 10) + "...");
-        } else {
-            console.log(" Erro Login Zabbix: " + JSON.stringify(res.data.error));
-        }
-    } catch (e) { 
-        console.log(" Zabbix Offline: " + e.message); 
-    }
-}
-
-async function fetchZabbixMetrics() {
-    if (!zabbixToken) { await zabbixAuth(); return; }
-    try {
-        const res = await axios.post(ZABBIX_CONFIG.url, {
-            jsonrpc: "2.0", method: "item.get",
-            params: {
-                output: ["lastvalue", "key_"],
-                search: { key_: "system.cpu.util" }, 
-                sortfield: "name", limit: 1
-            },
-            auth: zabbixToken, id: 2
-        });
-
-        if (res.data.result && res.data.result.length > 0) {
-            let cpuVal = parseFloat(res.data.result[0].lastvalue);
-            realMetrics.cpu = Math.round(cpuVal);
-            realMetrics.mem = Math.round(40 + (cpuVal * 0.5)); 
-            realMetrics.source = "Zabbix API (Local)";
-        }
-    } catch (e) { zabbixToken = null; }
-}
-
-setInterval(fetchZabbixMetrics, 5000);
-setTimeout(fetchZabbixMetrics, 2000);
-
-// --- MONITORAMENTO ---
-function pingHost(host) {
-    return new Promise(resolve => {
-        const cmd = "ping -c 1 " + host;
-        exec(cmd, { timeout: 2000 }, (err, stdout) => {
-            if (err || !stdout) return resolve(null);
-            const m = stdout.match(/time=([\d.]+)\s*ms/i);
-            resolve(m ? parseInt(m[1], 10) + systemState.latencyMod : null);
-        });
-    });
-}
-
-async function updateGlobalMetrics() {
-    const [latam, us, eu] = await Promise.all([
-        pingHost(globalStats.latam.target),
-        pingHost(globalStats.useast.target),
-        pingHost(globalStats.euwest.target)
-    ]);
-    globalStats.latam.ms = latam || 0;
-    globalStats.useast.ms = us || 0;
-    globalStats.euwest.ms = eu || 0;
+// --- API DE DADOS (O "Coração" do Dashboard) ---
+app.get('/api/enterprise-status', (req, res) => {
     
-    globalStats.latam.status = (latam && latam < 200) ? 'ONLINE' : 'OFFLINE';
-    globalStats.useast.status = (us) ? 'ONLINE' : 'OFFLINE';
-    globalStats.euwest.status = (eu) ? 'ONLINE' : 'OFFLINE';
-}
-setInterval(updateGlobalMetrics, 5000);
+    // Gera números aleatórios para dar "vida" ao dashboard
+    const baseCpu = simulationState.isUnderAttack ? 90 : 30;
+    const cpuFluctuation = Math.floor(Math.random() * 15);
+    
+    const baseRps = simulationState.isUnderAttack ? 5000 : 800;
+    const rpsFluctuation = Math.floor(Math.random() * 200);
 
-// --- API ---
-app.get("/api/enterprise-status", (req, res) => {
-    const cpuDisplay = systemState.ddosActive ? 100 : realMetrics.cpu;
+    // Simula latência alta se houver problema
+    const latamMs = simulationState.latencyIssue ? 450 : 35 + Math.floor(Math.random() * 20);
+    const latamStatus = simulationState.latencyIssue ? 'WARN' : 'ONLINE';
+
     res.json({
-        regions: globalStats,
-        system: { cpu: cpuDisplay, mem: realMetrics.mem, source: realMetrics.source },
-        business: { rps: 1240, is_under_attack: systemState.ddosActive, latency_issue: systemState.latencyMod > 0 }
+        system: {
+            cpu: Math.min(100, baseCpu + cpuFluctuation),
+            memory: 60
+        },
+        business: {
+            rps: baseRps + rpsFluctuation,
+            is_under_attack: simulationState.isUnderAttack,
+            latency_issue: simulationState.latencyIssue
+        },
+        regions: {
+            latam:  { ms: latamMs, status: latamStatus },
+            useast: { ms: 120 + Math.floor(Math.random() * 10), status: 'ONLINE' },
+            euwest: { ms: 180 + Math.floor(Math.random() * 10), status: 'ONLINE' }
+        }
     });
 });
 
-app.post("/api/actions", (req, res) => {
+// --- API DE AÇÕES (Botões do Painel) ---
+app.post('/api/actions', (req, res) => {
     const { action } = req.body;
-    if (action === 'MITIGATE_DDOS') systemState.ddosActive = false;
-    if (action === 'REROUTE_TRAFFIC') systemState.latencyMod = 0;
-    if (action === 'SIMULATE_ATTACK') systemState.ddosActive = true;
-    res.json({ success: true });
+    console.log(`[ACTION RECEIVED] ${action}`);
+
+    if (action === 'SIMULATE_ATTACK') {
+        simulationState.isUnderAttack = true;
+        simulationState.latencyIssue = true; // Ataque causa lentidão
+    } 
+    else if (action === 'MITIGATE_DDOS') {
+        simulationState.isUnderAttack = false;
+        setTimeout(() => { simulationState.latencyIssue = false; }, 3000); // Demora um pouco para normalizar a rede
+    }
+    else if (action === 'REROUTE_TRAFFIC') {
+        simulationState.latencyIssue = false;
+    }
+
+    res.json({ success: true, newState: simulationState });
 });
 
-app.use(express.static(__dirname));
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-
-app.listen(APP_PORT, () => { console.log(" KNS Enterprise v2.0 rodando na porta " + APP_PORT); });
+app.listen(PORT, () => {
+    console.log(`🚀 KNS Dashboard rodando em: http://localhost:${PORT}`);
+    console.log(`🔧 Modo de Simulação Ativo`);
+});
