@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-/* --- TEMA NEON DARK --- */
+/* --- TEMA NEON DARK (KNS BRAND) --- */
 :root {
     --bg-color: #050a14;
     --glass-bg: rgba(20, 30, 50, 0.6);
@@ -34,55 +34,52 @@ body {
     gap: 15px; height: calc(100vh - 30px);
 }
 
-/* --- HEADER --- */
 .header {
     grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;
 }
 .brand h1 { font-family: 'JetBrains Mono'; font-size: 24px; margin: 0; letter-spacing: -2px; }
 .brand span { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-.controls { display: flex; gap: 15px; align-items: center; }
 
-/* --- CARDS & EFEITOS --- */
+/* --- CARDS & ALERTA DE SATURAÇÃO --- */
 .glass-card {
     background: var(--glass-bg); backdrop-filter: blur(8px); border: 1px solid var(--glass-border);
     border-radius: 12px; padding: 15px; display: flex; flex-direction: column; position: relative;
     box-shadow: var(--card-shadow);
 }
-.glass-card:hover { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
 
-/* --- SIDEBAR METRICS --- */
+.alert-blink {
+    animation: critical-pulse 0.5s infinite alternate !important;
+    border: 2px solid var(--neon-red) !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+@keyframes critical-pulse {
+    from { box-shadow: 0 0 5px var(--neon-red); }
+    to { box-shadow: 0 0 25px var(--neon-red); }
+}
+
+/* --- SIDEBAR & METRICS --- */
 .sidebar { display: flex; flex-direction: column; gap: 10px; grid-row: 2 / 3; }
 .metric-val { font-family: 'JetBrains Mono'; font-size: 28px; font-weight: 700; margin-top: 5px; }
-.status-dot { height: 10px; width: 10px; background: var(--neon-green); border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--neon-green); animation: pulse 2s infinite; }
 
-/* --- CHART SIMULATORS (FAKE GRAFANA) --- */
+/* --- CHARTS --- */
 .main-stage { 
     grid-column: 2 / 3; grid-row: 2 / 3; display: grid; 
     grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px; 
 }
-.chart-box { position: relative; overflow: hidden; }
 .chart-title { position: absolute; top: 10px; left: 15px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; z-index: 2;}
 
-/* Animação de Barras (Fake Equalizer) */
-.fake-chart {
-    display: flex; align-items: flex-end; justify-content: space-between; gap: 2px;
-    height: 100%; padding-top: 30px; opacity: 0.7;
-}
+.fake-chart { display: flex; align-items: flex-end; justify-content: space-between; gap: 2px; height: 100%; padding-top: 30px; opacity: 0.7; }
 .bar { flex: 1; background: var(--neon-blue); opacity: 0.5; animation: equalizer 1s infinite alternate; }
-.bar:nth-child(even) { background: #60a5fa; animation-duration: 1.2s; }
-.bar:nth-child(3n) { background: #2563eb; animation-duration: 0.8s; }
 
 /* --- LOGS --- */
 .logs-panel { grid-column: 1 / -1; height: 120px; font-family: 'JetBrains Mono'; font-size: 11px; overflow-y: auto; }
 .log-line { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 2px 0; color: var(--neon-blue); }
 
-/* --- KEYFRAMES --- */
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-@keyframes equalizer { 0% { height: 20%; } 100% { height: 90%; } }
+/* --- ATACK MODE --- */
 @keyframes shake { 0% { transform: translate(1px, 1px); } 100% { transform: translate(-1px, -1px); } }
-
-.attack-mode .glass-card { border-color: var(--neon-red); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); animation: shake 0.5s infinite; }
+.attack-mode .glass-card { border-color: var(--neon-red); animation: shake 0.5s infinite; }
 .attack-mode .brand span { color: var(--neon-red); text-shadow: 0 0 15px red; }
 .attack-mode .bar { background: var(--neon-red) !important; }
 </style>
@@ -92,9 +89,9 @@ body {
 <div class="dashboard-grid">
     <div class="header">
         <div class="brand"><h1>KNS<span>_COMMAND_CENTER</span></h1></div>
-        <div class="controls">
-            <div style="font-size:12px"><span class="status-dot" id="sys-dot"></span> <span id="sys-status">ONLINE</span></div>
-            <button onclick="toggleAttack()" style="background:transparent; border:1px solid var(--neon-red); color:var(--neon-red); padding:5px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">
+        <div class="controls" style="display:flex; gap:15px; align-items:center;">
+            <div style="font-size:12px"><span id="sys-dot" style="height:10px; width:10px; background:var(--neon-green); border-radius:50%; display:inline-block;"></span> <span id="sys-status">ONLINE</span></div>
+            <button onclick="toggleAttack()" id="btn-attack" style="background:transparent; border:1px solid var(--neon-red); color:var(--neon-red); padding:5px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">
                 <i class="fa-solid fa-bug"></i> SIMULAR ATAQUE
             </button>
         </div>
@@ -103,16 +100,16 @@ body {
     <aside class="sidebar">
         <div class="glass-card">
             <small style="color:var(--text-muted)">LATÊNCIA (LATAM)</small>
-            <div class="metric-val" id="lat-val" style="color:var(--neon-green)">12ms</div>
+            <div class="metric-val" id="lat-val" style="color:var(--neon-green)">--ms</div>
         </div>
-        <div class="glass-card">
-            <small style="color:var(--text-muted)">REQ/SEG (RPS)</small>
-            <div class="metric-val" id="rps-val">842</div>
+        <div class="glass-card" id="card-traffic">
+            <small style="color:var(--text-muted)">TRÁFEGO (WI-FI 10777)</small>
+            <div class="metric-val" id="rps-val">-- Mbps</div>
         </div>
         <div class="glass-card">
             <small style="color:var(--text-muted)">CPU LOAD</small>
-            <div class="metric-val" id="cpu-val">32%</div>
-            <div style="width:100%; height:4px; background:#333; margin-top:5px;"><div id="cpu-bar" style="width:32%; height:100%; background:var(--neon-blue)"></div></div>
+            <div class="metric-val" id="cpu-val">--%</div>
+            <div style="width:100%; height:4px; background:#333; margin-top:5px;"><div id="cpu-bar" style="width:0%; height:100%; background:var(--neon-blue)"></div></div>
         </div>
     </aside>
 
@@ -120,94 +117,80 @@ body {
         <div class="glass-card chart-box">
             <span class="chart-title">Tráfego de Entrada (Live)</span>
             <div class="fake-chart">
-                <div class="bar" style="height:40%"></div><div class="bar" style="height:70%"></div>
-                <div class="bar" style="height:30%"></div><div class="bar" style="height:90%"></div>
-                <div class="bar" style="height:50%"></div><div class="bar" style="height:20%"></div>
-                <div class="bar" style="height:60%"></div><div class="bar" style="height:80%"></div>
-                <div class="bar" style="height:40%"></div><div class="bar" style="height:70%"></div>
+                <script>for(let i=0; i<15; i++) document.write(`<div class="bar" style="height:${Math.random()*80+10}%"></div>`);</script>
             </div>
         </div>
         <div class="glass-card chart-box">
             <span class="chart-title">Mitigação de Ameaças</span>
             <div class="fake-chart">
-                <div class="bar" style="height:20%"></div><div class="bar" style="height:30%"></div>
-                <div class="bar" style="height:10%"></div><div class="bar" style="height:40%"></div>
-                <div class="bar" style="height:20%"></div><div class="bar" style="height:25%"></div>
-                <div class="bar" style="height:15%"></div><div class="bar" style="height:35%"></div>
+                <script>for(let i=0; i<15; i++) document.write(`<div class="bar" style="height:${Math.random()*40+10}%"></div>`);</script>
             </div>
         </div>
         <div class="glass-card chart-box" style="grid-column: span 2;">
-            <span class="chart-title">Mapa de Calor da Rede (Global)</span>
+            <span class="chart-title">Monitoramento Global de Infraestrutura</span>
              <div class="fake-chart">
-                <script>
-                    for(let i=0; i<40; i++) {
-                        document.write(`<div class="bar" style="height:${Math.random()*100}%; animation-delay:-${Math.random()}s"></div>`);
-                    }
-                </script>
+                <script>for(let i=0; i<45; i++) document.write(`<div class="bar" style="height:${Math.random()*100}%; animation-delay:-${Math.random()}s"></div>`);</script>
             </div>
         </div>
     </main>
 
     <footer class="glass-card logs-panel" id="log-panel">
-        <div class="log-line">[SYS] System initialized successfully.</div>
+        <div class="log-line">[SYS] Initializing Protocol 09 Command Center...</div>
     </footer>
 </div>
 
 <script>
-    // --- LÓGICA FRONTEND ---
     let isAttack = false;
 
-    // Atualiza números simulados
-    setInterval(() => {
-        // CPU e RPS oscilando
-        let cpu = isAttack ? 85 + Math.random()*15 : 30 + Math.random()*10;
-        let rps = isAttack ? 5000 + Math.random()*2000 : 800 + Math.random()*100;
-        let lat = isAttack ? 400 + Math.random()*100 : 12 + Math.random()*5;
+    function updateDashboard() {
+        fetch('/api/enterprise-status')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('cpu-val').innerText = data.system.cpu + "%";
+                document.getElementById('cpu-bar').style.width = data.system.cpu + "%";
+                
+                const traffic = data.business.rps;
+                document.getElementById('rps-val').innerText = traffic + " Mbps";
 
-        document.getElementById('cpu-val').innerText = Math.floor(cpu) + "%";
-        document.getElementById('cpu-bar').style.width = cpu + "%";
-        document.getElementById('rps-val').innerText = Math.floor(rps);
-        document.getElementById('lat-val').innerText = Math.floor(lat) + "ms";
+                // Feedback visual de saturação real do Zabbix
+                const card = document.getElementById('card-traffic');
+                if (traffic > 50) {
+                    card.classList.add('alert-blink');
+                    if(!isAttack) addLog("WARN", `Interface threshold exceeded: ${traffic} Mbps`);
+                } else {
+                    card.classList.remove('alert-blink');
+                }
 
-        // Cores de alerta
-        document.getElementById('lat-val').style.color = isAttack ? 'var(--neon-red)' : 'var(--neon-green)';
-        
-        // Logs automáticos
-        if(Math.random() > 0.7) addLog("INFO", "Traffic analysis normal.");
-        if(isAttack && Math.random() > 0.3) addLog("CRIT", "DDoS Packet Flood Detected!");
-    }, 1000);
+                document.getElementById('lat-val').innerText = data.regions.latam.ms + "ms";
+                document.getElementById('lat-val').style.color = data.regions.latam.status === 'BAD' ? 'var(--neon-red)' : 'var(--neon-green)';
 
-    function toggleAttack() {
-        isAttack = !isAttack;
-        document.body.classList.toggle('attack-mode');
-        
-        const btn = document.querySelector('button');
+                if (data.business.is_under_attack !== isAttack) applyAttackVisuals(data.business.is_under_attack);
+            }).catch(err => console.warn("Waiting for server sync..."));
+    }
+
+    function applyAttackVisuals(active) {
+        isAttack = active;
+        document.body.classList.toggle('attack-mode', active);
+        const btn = document.getElementById('btn-attack');
         const status = document.getElementById('sys-status');
         const dot = document.getElementById('sys-dot');
 
-        if(isAttack) {
-            btn.innerText = "MITIGAR AGORA";
-            btn.style.background = "var(--neon-red)";
-            btn.style.color = "white";
-            status.innerText = "UNDER ATTACK";
-            status.style.color = "var(--neon-red)";
-            dot.style.background = "red";
-            addLog("WARN", "⚠️ SYSTEM ALERT: UNUSUAL TRAFFIC SPIKE");
-        } else {
-            btn.innerText = "SIMULAR ATAQUE";
-            btn.style.background = "transparent";
-            btn.style.color = "var(--neon-red)";
-            status.innerText = "ONLINE";
-            status.style.color = "var(--text-main)";
-            dot.style.background = "var(--neon-green)";
-            addLog("SYS", "✅ Threat mitigated. Systems returning to normal.");
-        }
-        
-        // Envia comando pro server (opcional, só pra garantir o backend)
+        btn.innerText = active ? "MITIGAR AGORA" : "SIMULARE ATAQUE";
+        btn.style.background = active ? "var(--neon-red)" : "transparent";
+        btn.style.color = active ? "white" : "var(--neon-red)";
+        status.innerText = active ? "UNDER ATTACK" : "ONLINE";
+        status.style.color = active ? "var(--neon-red)" : "var(--text-main)";
+        dot.style.background = active ? "red" : "var(--neon-green)";
+    }
+
+    function toggleAttack() {
         fetch('/api/actions', { 
             method: 'POST', 
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ action: isAttack ? 'SIMULATE_ATTACK' : 'MITIGATE_DDOS' })
+            body: JSON.stringify({ action: isAttack ? 'MITIGATE_DDOS' : 'SIMULATE_ATTACK' })
+        }).then(res => res.json()).then(data => {
+            applyAttackVisuals(data.newState.isUnderAttack);
+            addLog(isAttack ? "CRIT" : "SYS", isAttack ? "Invasion simulation triggered." : "Defenses normalized.");
         });
     }
 
@@ -217,7 +200,10 @@ body {
         div.className = 'log-line';
         div.innerHTML = `<span style="opacity:0.5">${new Date().toLocaleTimeString()}</span> [${lvl}] ${msg}`;
         p.prepend(div);
+        if (p.childNodes.length > 50) p.removeChild(p.lastChild);
     }
+
+    setInterval(updateDashboard, 2000);
 </script>
 </body>
 </html>
