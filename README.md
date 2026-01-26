@@ -51,6 +51,25 @@ body {
     overflow: hidden; 
 }
 
+/* --- ANIMAÇÕES DE PULSO (NOVO) --- */
+@keyframes pulse-green {
+    0% { text-shadow: 0 0 0 rgba(16, 185, 129, 0.7); transform: scale(1); }
+    50% { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); transform: scale(1.1); }
+    100% { text-shadow: 0 0 0 rgba(16, 185, 129, 0.7); transform: scale(1); }
+}
+
+@keyframes pulse-border-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulse-border-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
 /* --- GRID PRINCIPAL --- */
 .dashboard-grid {
     display: grid;
@@ -79,11 +98,26 @@ body {
 }
 .btn-icon:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
 
-/* --- GLASS CARDS --- */
+/* Indicador de Status Geral (Pulsante) */
+.sys-dot {
+    display: inline-block;
+    color: var(--neon-green);
+    animation: pulse-green 2s infinite;
+}
+
+/* --- GLASS CARDS (COM HOVER NOVO) --- */
 .glass-card {
     background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
     border-radius: 10px; padding: 15px; box-shadow: var(--card-shadow);
     display: flex; flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+/* Efeito Hover Neon */
+.glass-card:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); 
+    transform: translateY(-2px);
 }
 
 /* --- SIDEBAR --- */
@@ -94,10 +128,20 @@ body {
 .metric-fill { height: 100%; background: var(--neon-blue); width: 0%; transition: width 1s ease; }
 
 .global-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 8px; }
-.region-box { background: var(--log-bg); padding: 5px; border-radius: 4px; border-left: 2px solid transparent; font-size: 12px; }
+.region-box { background: var(--log-bg); padding: 5px; border-radius: 4px; border-left: 2px solid transparent; font-size: 12px; transition: all 0.3s; }
 .region-val { font-family: 'JetBrains Mono'; font-weight: bold; }
-.status-ok { border-color: var(--neon-green); color: var(--neon-green); }
-.status-bad { border-color: var(--neon-red); color: var(--neon-red); animation: blink 1s infinite; }
+
+/* Status com animação de borda */
+.status-ok { 
+    border-color: var(--neon-green); 
+    color: var(--neon-green); 
+    /* animation: pulse-border-green 2s infinite; Removido para não poluir demais, ativado se quiser */
+}
+.status-bad { 
+    border-color: var(--neon-red); 
+    color: var(--neon-red); 
+    animation: pulse-border-red 1.5s infinite; /* Alerta visual forte */
+}
 
 .action-area { margin-top: 8px; display: none; }
 .btn-action {
@@ -163,7 +207,9 @@ iframe { width: 100%; height: 100%; border: 0; display: block; }
             </div>
             <button class="btn-icon" onclick="simulateAttack()" title="Simular Ataque"><i class="fa-solid fa-bug"></i></button>
             <button class="btn-icon" onclick="toggleTheme()" title="Tema"><i class="fa-solid fa-circle-half-stroke"></i></button>
-            <div style="font-size:11px; color:var(--neon-green); font-weight:bold">● <span data-lang="sys_status">ONLINE</span></div>
+            <div style="font-size:11px; color:var(--neon-green); font-weight:bold">
+                <span class="sys-dot">●</span> <span data-lang="sys_status">ONLINE</span>
+            </div>
         </div>
     </div>
 
@@ -278,7 +324,17 @@ iframe { width: 100%; height: 100%; border: 0; display: block; }
     function updateRegion(id, data) {
         const el = document.getElementById(id);
         el.querySelector('.region-val').innerText = data.ms + "ms";
-        el.querySelector('.region-val').style.color = data.status === 'ONLINE' ? 'var(--neon-green)' : 'var(--neon-red)';
+        
+        // Remove classes antigas para atualizar status
+        el.classList.remove('status-ok', 'status-bad');
+        
+        if (data.status === 'ONLINE') {
+            el.querySelector('.region-val').style.color = 'var(--neon-green)';
+            el.classList.add('status-ok');
+        } else {
+            el.querySelector('.region-val').style.color = 'var(--neon-red)';
+            el.classList.add('status-bad');
+        }
     }
     function changeLang(lang) {
         currentLang = lang; localStorage.setItem('kns_lang', lang);
