@@ -32,4 +32,4 @@ Bash
 python3 scripts/auto_healing.py
 Acesse a Interface: O painel estará disponível na porta 3000.
 
-🚀 Desenvolvido por Kaleb Nunes - Consultor de Implantação e Infraestrutura.
+Desenvolvido por Kaleb Nunes - Consultor de Implantação e Infraestrutura.
